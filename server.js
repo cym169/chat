@@ -45,8 +45,7 @@ io.sockets.on('connection', function(socket) {
         socket.broadcast.emit('newImg', socket.username, imgData);
     });
 
-
 });
 
-server.listen(2333);
+server.listen(2333,'172.16.2.64');
 

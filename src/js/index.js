@@ -16,7 +16,7 @@ var index = {
             operationbox: ".operation-box"
         });
 
-        $("#text").on("keyup", function(e) {
+        $("#text").on("input propertychange blur focus", function() {
             var val = $(this).val();
             if(val.length){
                 $("#choose").hide();
@@ -25,14 +25,19 @@ var index = {
                 $("#choose").show();
                 $("#send").hide();
             }
+        });
+        $("#text").on("keyup",function (e) {
 
             if(e.keyCode == 13){
+                e.stopPropagation();
+                e.preventDefault();
                 $("#send").trigger("click");
+                return false;
             }
         });
     },
+
     setSocket : function () {
-        var that = this;
         this.socket = io.connect();
         this.getMsg();
         this.existed();
@@ -86,8 +91,8 @@ var index = {
         $(document).on("click","#login",function(){
             var message = $("#username"),
                 name = message.val();
-            if ($.trim(name).length != 0) {
-                that.socket.emit('login', $.trim(name));
+            if (name.length != 0) {
+                that.socket.emit('login', name);
                 return;
             }
         });
@@ -99,7 +104,7 @@ var index = {
         });
     },
     setIcon : function () {
-        $(document).on("click","#icon",function(){
+        $(document).on("click","#icon",function(e){
             var box = $(".emoji-box");
             if(box.hasClass('hidden')){
                 if(box.find("li").length > 0){
@@ -124,17 +129,30 @@ var index = {
             }else{
                 box.addClass('hidden');
             }
+            e.stopPropagation();
         });
 
-        // 选择标签
-        $(document).on("click",".emoji-box li",function(){
-            var img = $(this).find("img");
+        $(document).on("click",function (e) {
+            var emojibox = $(".emoji-box");
+            if (e.target != emojibox) {
+                emojibox.addClass('hidden');
+            }
+        });
 
+        // 选择表情
+        $(document).on("click",".emoji-box li",function(){
+            var title = $(this).attr("title"),
+                emoji = "["+title+"]",
+                val = $("#text").val();
+            $("#text").val(val+emoji).focus();
+            $(".emoji-box").addClass("hidden");
         })
     },
     showMsg : function(type,name,msg,img){
-        var str = "";
-        var date = new Date().toTimeString().substr(0, 8);
+        var str = "",
+            that = this,
+            date = new Date().toTimeString().substr(0, 8),
+            data = that.showEmoji(msg);
         // 我自己，显示在右边
         if(type === 0){
             str = $('<div class="message-title">'+date+'</div>\n' +
@@ -142,7 +160,7 @@ var index = {
                 '                <div class="message-avatar"><img src="'+img+'" /></div>\n' +
                 '                <div class="message-content">\n' +
                 '                    <div class="message-bubble">\n' +
-                '                        <div class="message-text">'+msg+'</div>\n' +
+                '                        <div class="message-text">'+data+'</div>\n' +
                 '                    </div>\n' +
                 '                </div>\n' +
                 '            </div>');
@@ -155,20 +173,34 @@ var index = {
                 '                <div class="message-content">\n' +
                 '                    <div class="message-name">'+name+'</div>\n' +
                 '                    <div class="message-bubble">\n' +
-                '                        <div class="message-text">'+msg+'</div>\n' +
+                '                        <div class="message-text">'+data+'</div>\n' +
                 '                    </div>\n' +
                 '                </div>\n' +
                 '            </div>');
         }
         $(".messages").append(str);
         var h = $(".messages")[0].scrollHeight;
+        var mh = $(".message-box").offset().top;
+        console.log(h,mh)
         $(".message-box").scrollTop(h);
     },
+    showEmoji : function (msg) {
+        var reg = /\[emoji\d+\]/g,
+            name,
+            emojiIndex,
+            result = msg;
+        while (name = reg.exec(msg)) {
+            emojiIndex = name[0].slice(6, -1);
+            result = result.replace(name[0], '<img class="emoji" src="http://172.16.2.64:2333/content/emoji/' + emojiIndex + '.gif" />');
+        }
+        return result;
+    }
 };
 
 
 
 $(function(){
+    $("#username").focus();
     index.init();
 })
 
