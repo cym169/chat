@@ -1,0 +1,26 @@
+{
+  "name": "chat",
+  "version": "1.0.0",
+  "description": "a chat demo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cym169/chat.git"
+  },
+  "keywords": [
+    "chat"
+  ],
+  "author": "chen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cym169/chat/issues"
+  },
+  "homepage": "https://github.com/cym169/chat#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "socket.io": "^2.1.1"
+  }
+}

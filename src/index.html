@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <meta content="telephone=no" name="format-detection">
+    <meta name="full-screen" content="yes">
+    <meta name="browsermode" content="application">
+    <meta content="white" name="apple-mobile-web-app-status-bar-style">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <title>陈明的聊天室</title>
+</head>
+<body>
+<div class="wrap">
+    <div class="title">陈明的聊天室(<span id="length">0</span>)</div>
+    <div class="message-box">
+        <div class="messages">
+            <div class="message-title">大家尽情聊天哟！</div>
+            <div class="message message-recevied">
+                <div class="message-avatar"><img src="content/emoji/1.gif"/></div>
+                <div class="message-content">
+                    <div class="message-name"></div>
+                    <div class="message-bubble">
+                        <div class="message-text"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="message-title">Sunday,Feb 9,12:58</div>
+            <div class="message message-sent">
+                <div class="message-avatar"><img src="content/emoji/1.gif"/></div>
+                <div class="message-content">
+                    <div class="message-name"></div>
+                    <div class="message-bubble">
+                        <div class="message-text"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="message-title">Sunday,Feb 9,12:58</div>
+            <div class="message message-sent">
+                <div class="message-avatar"><img src="content/emoji/3.gif"/></div>
+                <div class="message-content">
+                    <div class="message-name"></div>
+                    <div class="message-bubble">
+                        <div class="message-image">
+                            <img/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="operation-box">
+        <div class="form-box">
+            <a href="javascript:;" class="voice" title="语音"></a>
+            <a href="javascript:;" class="icon" id="icon" title="表情"></a>
+            <a href="javascript:;" class="plus" id="choose" title="选择"></a>
+            <a href="javascript:;" class="send" id="send" title="发送">发送</a>
+            <div class="text"><textarea id="text"></textarea></div>
+        </div>
+        <div class="choose">
+            <ul>
+                <li>发送图片</li>
+                <li>发送文件</li>
+            </ul>
+        </div>
+        <ul class="emoji-box hidden">
+            <!--<li><img src="content/emoji/3.gif"></li>-->
+            <!--<li><img src="content/emoji/3.gif"></li>-->
+            <!--<li><img src="content/emoji/3.gif"></li>-->
+            <!--<li><img src="content/emoji/3.gif"></li>-->
+            <!--<li><img src="content/emoji/3.gif"></li>-->
+            <!--<li><img src="content/emoji/3.gif"></li>-->
+            <!--<li><img src="content/emoji/3.gif"></li>-->
+            <!--<li><img src="content/emoji/3.gif"></li>-->
+        </ul>
+    </div>
+
+    <div class="login-wrapper">
+        <div class="box">
+            <div class="box-container">
+                <div class="box-content">
+                    <div class="tips">欢迎来到陈明的聊天室！</div>
+                    <div><input type="text" id="username" placeholder="请输入您的名字"></div>
+                    <div><input type="button" value="进入聊天室" id="login"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="js/jquery.1.11.2.min.js"></script>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+</html>
