@@ -47,5 +47,5 @@ io.sockets.on('connection', function(socket) {
 
 });
 
-server.listen(2333,'172.16.2.64');
+server.listen(2333);
 
