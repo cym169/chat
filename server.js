@@ -16,13 +16,6 @@ var pool = mysql.createConnection({
 pool.connect();
 app.use('/', express.static(__dirname + '/src'));
 
-app.get('/api/iconLength', function(req, res) {
-    res.json({
-        code: 200,
-        data: emoji
-    })
-});
-
 var avatar = "http://www.91pool.com/img/hsr_icon.png";
 
 io.sockets.on('connection', function(socket) {
