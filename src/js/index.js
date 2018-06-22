@@ -4,10 +4,29 @@ var index = {
     socket : null,
     init : function () {
         this.setArea();
-        this.setSocket();
         this.send();
         this.login();
+        this.logout();
+    },
+    setSocket : function () {
+        this.setUser();
+        this.heartbeat();
         this.setIcon();
+        this.getEmoji();
+        this.getMsg();
+        this.noLogin();
+        this.existed();
+        this.success();
+        this.system();
+        this.passError();
+    },
+    setUser: function () {
+        var that = this;
+        if(localStorage.name&&localStorage.pass){
+            var name = localStorage.name;
+            var pass = localStorage.pass;
+            that.socket.emit('login', name, pass);
+        }
     },
     setArea : function () {
         $("#text").autoTextarea({
@@ -27,7 +46,6 @@ var index = {
             }
         });
         $("#text").on("keyup",function (e) {
-
             if(e.keyCode == 13){
                 e.stopPropagation();
                 e.preventDefault();
@@ -36,25 +54,27 @@ var index = {
             }
         });
     },
-
-    setSocket : function () {
-        this.socket = io.connect();
-        this.getMsg();
-        this.existed();
-        this.success();
-        this.system();
+    heartbeat: function () {
+        this.socket.on('heartbeat',function (flag) {
+            if(flag == 'yes'){
+                this.socket.emit('mybeat',true);
+            }else{
+                this.socket.emit('mybeat',false);
+            }
+        })
     },
     // 点击发送消息
     send : function () {
         var that = this;
         $(document).on("click","#send",function(){
             var message = $("#text"),
-                msg = message.val();
+                msg = message.val(),
+                userId = $("#userId").val();
             message.val("").focus();
             $(this).hide();
             $("#choose").show();
             if ($.trim(msg).length != 0) {
-                that.socket.emit('postMsg', msg);
+                that.socket.emit('postMsg', msg, userId);
                 that.showMsg(0,'我',msg,'../content/icon.png');
                 return;
             }
@@ -66,17 +86,43 @@ var index = {
             that.showMsg(1,username,msg,'../content/icon.png');
         });
     },
+    noLogin : function () {
+        this.socket.on('noLogin', function() {
+            $(".login-wrapper").hide();
+            $(".tips").html("您未登录，请登录后继续聊天！");
+            $("#username").val("");
+            $("#text").focus();
+        })
+    },
     existed : function () {
         this.socket.on('existed', function() {
-            $(".tips").html("您输入的名字已存在！")
+            $(".tips").html("该用户已经进入聊天室啦！");
+        });
+    },
+    passError : function () {
+        this.socket.on('passerror', function() {
+            $(".tips").html("您输入的密码错误！");
+        });
+    },
+    getEmoji : function () {
+        this.socket.on("getEmoji",function (data) {
+            var box = $(".emoji-box");
+            $.each(data,function (i,t) {
+                var str = $("<li title='emoji"+t.name+"'><img src='"+t.imgUrl+"'></li>");
+                box.append(str);
+            });
+            var h = box.height();
+            box.css("top",-h);
         });
     },
     success : function () {
-        this.socket.on('success', function() {
+        this.socket.on('success', function(id) {
             $(".login-wrapper").hide();
             $(".tips").html("欢迎来到陈明的聊天室！");
             $("#username").val("");
+            $("#password").val("");
             $("#text").focus();
+            $("#userId").val(id);
         });
     },
     system : function () {
@@ -90,42 +136,42 @@ var index = {
         var that = this;
         $(document).on("click","#login",function(){
             var message = $("#username"),
-                name = message.val();
-            if (name.length != 0) {
-                that.socket.emit('login', name);
-                return;
+                password = $("#password"),
+                name = message.val(),
+                pass = password.val();
+            if (name.length != 0 && pass.length != 0) {
+                that.socket = io.connect();
+                that.setSocket();
+                that.socket.emit('login', name, md5(pass));
+                localStorage.name = name;
+                localStorage.pass = md5(pass);
             }
         });
 
-        $(document).on("keydown","#username",function(e){
+        $(document).on("keydown","#username,#password",function(e){
             if(e.keyCode === 13){
                 $("#login").trigger("click");
             }
         });
     },
+    logout : function () {
+        var that = this;
+        $(document).on("click","#logout",function(e){
+            localStorage.removeItem('name');
+            localStorage.removeItem('pass');
+            that.socket.disconnect();
+            that.socket = null;
+            $(".login-wrapper").show();
+            $("#userId").val("");
+        })
+    },
     setIcon : function () {
+        var that = this;
+        that.socket.emit("emoji");
         $(document).on("click","#icon",function(e){
             var box = $(".emoji-box");
             if(box.hasClass('hidden')){
-                if(box.find("li").length > 0){
-                    box.removeClass('hidden');
-                }else{
-                    $.ajax({
-                        url         : "/api/iconLength",
-                        type        : "get",
-                        dataType    : "json",
-                        success     : function (res) {
-                            if(res.code === 200){
-                                $.each(res.data.list,function (i,t) {
-                                    var str = $("<li title='"+t.title+"'><img src='"+t.imgUrl+"'></li>")
-                                    box.append(str);
-                                });
-                                var h = box.height();
-                                box.css("top",-h).removeClass('hidden');
-                            }
-                        }
-                    })
-                }
+                box.removeClass('hidden');
             }else{
                 box.addClass('hidden');
             }
@@ -144,7 +190,8 @@ var index = {
             var title = $(this).attr("title"),
                 emoji = "["+title+"]",
                 val = $("#text").val();
-            $("#text").val(val+emoji).focus();
+            $("#text").val(val+emoji);
+            $("#text").focus();
             $(".emoji-box").addClass("hidden");
         })
     },
@@ -181,7 +228,6 @@ var index = {
         $(".messages").append(str);
         var h = $(".messages")[0].scrollHeight;
         var mh = $(".message-box").offset().top;
-        console.log(h,mh)
         $(".message-box").scrollTop(h);
     },
     showEmoji : function (msg) {
@@ -191,7 +237,7 @@ var index = {
             result = msg;
         while (name = reg.exec(msg)) {
             emojiIndex = name[0].slice(6, -1);
-            result = result.replace(name[0], '<img class="emoji" src="http://172.16.2.64:2333/content/emoji/' + emojiIndex + '.gif" />');
+            result = result.replace(name[0], '<img class="emoji" src="http://172.16.2.78:2333/content/emoji/' + emojiIndex + '.gif" />');
         }
         return result;
     }

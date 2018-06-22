@@ -18,41 +18,11 @@
 </head>
 <body>
 <div class="wrap">
-    <div class="title">聊天室(<span id="length">0</span>)</div>
+    <input type="hidden" id="userId">
+    <div class="title">聊天室(<span id="length">0</span>)<a class="logout" id="logout">退出</a></div>
     <div class="message-box">
         <div class="messages">
             <div class="message-title">大家尽情聊天哟！</div>
-            <div class="message message-recevied">
-                <div class="message-avatar"><img src="content/emoji/1.gif"/></div>
-                <div class="message-content">
-                    <div class="message-name"></div>
-                    <div class="message-bubble">
-                        <div class="message-text"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="message-title">Sunday,Feb 9,12:58</div>
-            <div class="message message-sent">
-                <div class="message-avatar"><img src="content/emoji/1.gif"/></div>
-                <div class="message-content">
-                    <div class="message-name"></div>
-                    <div class="message-bubble">
-                        <div class="message-text"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="message-title">Sunday,Feb 9,12:58</div>
-            <div class="message message-sent">
-                <div class="message-avatar"><img src="content/emoji/3.gif"/></div>
-                <div class="message-content">
-                    <div class="message-name"></div>
-                    <div class="message-bubble">
-                        <div class="message-image">
-                            <img/>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
     <div class="operation-box">
@@ -70,14 +40,7 @@
             </ul>
         </div>
         <ul class="emoji-box hidden">
-            <!--<li><img src="content/emoji/3.gif"></li>-->
-            <!--<li><img src="content/emoji/3.gif"></li>-->
-            <!--<li><img src="content/emoji/3.gif"></li>-->
-            <!--<li><img src="content/emoji/3.gif"></li>-->
-            <!--<li><img src="content/emoji/3.gif"></li>-->
-            <!--<li><img src="content/emoji/3.gif"></li>-->
-            <!--<li><img src="content/emoji/3.gif"></li>-->
-            <!--<li><img src="content/emoji/3.gif"></li>-->
+            <!--表情-->
         </ul>
     </div>
 
@@ -87,7 +50,8 @@
                 <div class="box-content">
                     <div class="tips">欢迎来到聊天室！</div>
                     <div><input type="text" id="username" placeholder="请输入您的名字"></div>
-                    <div><input type="button" value="进入聊天室" id="login"></div>
+                    <div><input type="password" id="password" placeholder="请输入您的密码"></div>
+                    <div><button type="button" id="login">进入聊天室</button></div>
                 </div>
             </div>
         </div>
@@ -95,6 +59,7 @@
 </div>
 </body>
 <script type="text/javascript" src="js/jquery.1.11.2.min.js"></script>
+<script type="text/javascript" src="js/md5.js"></script>
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <script type="text/javascript" src="js/index.js"></script>
 </html>
