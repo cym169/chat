@@ -42,12 +42,16 @@ io.sockets.on('connection', function(socket) {
 
 
             if(userInfo.code = 1){
+
+                // 第一种情况，用户输入的名字已存在，且密码正确
                 socket.username = username;
                 userId = userInfo.id;
                 var data = {
                     latestDate: latestDate,
                     status:1
                 };
+
+                // 修改该用户的登录状态和最近登录时间，未登录为0，已登录为1。
                 var modSql = 'UPDATE users SET latestDate = ?,status = ? WHERE id='+userInfo.id;
                 var modSqlParams = [data.latestDate,data.status];
                 pool.query(modSql,modSqlParams,function (err, hdata) {
@@ -55,26 +59,23 @@ io.sockets.on('connection', function(socket) {
                         console.log('[UPDATE ERROR] - ',err.message);
                         return;
                     }
+
+                    // 查找所有已登录的用户，获取已登录用户的数量
                     var sql = 'SELECT * FROM users WHERE status = 1';
                     pool.query(sql,function (err, sqlData) {
                         socket.emit('success',userInfo.id);
                         io.sockets.emit('system', username, sqlData.length, 0);
                     });
 
-                    var recordSql = 'SELECT chat.*,u.*  from chatrecord chat ,users u WHERE chat.userId=u.id';
-                    pool.query(recordSql,function (err, data) {
-                        console.log(data)
-                        // socket.broadcast.emit('newMsg', socket.username, data);
-                    });
-
-
                 });
             }
             else if(userInfo.code = 2){
+                // 第二种情况，输入的用户名存在，密码输入错误！
                 socket.emit('passerror');
                 return false;
             }
             else if(userInfo.code = 3){
+                // 第三种情况，输入的用户名不存在
                 socket.username = username;
                 var data = {
                     username: username,
@@ -82,8 +83,9 @@ io.sockets.on('connection', function(socket) {
                     avatar: avatar,
                     createDate: createDate,
                     latestDate: latestDate,
-                    status: 0
+                    status: 1
                 };
+                // 讲输入的用户名，密码存入数据库
                 var  addSql = 'INSERT INTO users(username,password,avatar,createDate,latestDate,status) VALUES(?,?,?,?,?,?)';
                 var  addSqlParams = [data.username, data.password, data.avatar,data.createDate, data.latestDate,data.status];
                 pool.query(addSql,addSqlParams,function (err, result) {
@@ -91,23 +93,42 @@ io.sockets.on('connection', function(socket) {
                         console.log('[INSERT ERROR] - ',err.message);
                         return;
                     }
-                    console.log(result)
-                    // socket.emit('success',index[1]);
-                    // io.sockets.emit('system', username, users.length, 0);
+
+                    // 查找所有已登录的用户，获取已登录用户的数量
+                    var lengthSql = 'SELECT * FROM users WHERE status = 1';
+                    pool.query(lengthSql,function (err, sqlData) {
+                        io.sockets.emit('system', username, sqlData.length, 0);
+                    });
+
+                    // 根据用户名查找到该新增用户的id
+                    var idSql = 'SELECT * FROM users WHERE username ='+socket.username;
+                    pool.query(idSql,function (err, sqlData) {
+                        socket.emit('success',sqlData[0].id);
+                    });
+
                 });
             }
         });
 	});
 
-    socket.on('mybeat',function (flag) {
-        if(flag){
-            setTimeout(function(){
-                socket.emit('heartbeat','yes')
-            },3000);
-        }else{
-            socket.emit('heartbeat','no');
-        }
-    });
+    socket.on('getAllRecord',function () {
+        // 查找所有的聊天记录
+        var recordSql = 'SELECT chat.*,u.*  from chatrecord chat ,users u WHERE chat.userId=u.id';
+        pool.query(recordSql,function (err, data) {
+            console.log(data)
+            // socket.broadcast.emit('newMsg', socket.username, data);
+        });
+    })
+
+    // socket.on('mybeat',function (flag) {
+    //     if(flag == 'logIn'){
+    //         setTimeout(function(){
+    //             socket.emit('heartbeat','yes')
+    //         },3000);
+    //     }else{
+    //         socket.emit('heartbeat','no');
+    //     }
+    // });
 
 
 	socket.on('emoji',function () {

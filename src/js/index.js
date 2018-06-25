@@ -7,10 +7,11 @@ var index = {
         this.send();
         this.login();
         this.logout();
+        this.handler();
     },
     setSocket : function () {
         this.setUser();
-        this.heartbeat();
+        // this.heartbeat();
         this.setIcon();
         this.getEmoji();
         this.getMsg();
@@ -54,12 +55,41 @@ var index = {
             }
         });
     },
+    handler : function () {
+        $(document).on("click","#icon",function(e){
+            var box = $(".emoji-box");
+            if(box.hasClass('hidden')){
+                box.removeClass('hidden');
+            }else{
+                box.addClass('hidden');
+            }
+            e.stopPropagation();
+        });
+
+        $(document).on("click",function (e) {
+            var emojibox = $(".emoji-box");
+            if (e.target != emojibox) {
+                emojibox.addClass('hidden');
+            }
+        });
+
+        // 选择表情
+        $(document).on("click",".emoji-box li",function(){
+            var title = $(this).attr("title"),
+                emoji = "["+title+"]",
+                val = $("#text").val();
+            $("#text").val(val+emoji);
+            $("#text").focus();
+            $(".emoji-box").addClass("hidden");
+        })
+    },
     heartbeat: function () {
+        var that = this;
         this.socket.on('heartbeat',function (flag) {
             if(flag == 'yes'){
-                this.socket.emit('mybeat',true);
+                that.socket.emit('mybeat','logIn');
             }else{
-                this.socket.emit('mybeat',false);
+                that.socket.emit('mybeat','logOut');
             }
         })
     },
@@ -163,37 +193,12 @@ var index = {
             that.socket = null;
             $(".login-wrapper").show();
             $("#userId").val("");
+            $(".emoji-box").empty();
         })
     },
     setIcon : function () {
         var that = this;
         that.socket.emit("emoji");
-        $(document).on("click","#icon",function(e){
-            var box = $(".emoji-box");
-            if(box.hasClass('hidden')){
-                box.removeClass('hidden');
-            }else{
-                box.addClass('hidden');
-            }
-            e.stopPropagation();
-        });
-
-        $(document).on("click",function (e) {
-            var emojibox = $(".emoji-box");
-            if (e.target != emojibox) {
-                emojibox.addClass('hidden');
-            }
-        });
-
-        // 选择表情
-        $(document).on("click",".emoji-box li",function(){
-            var title = $(this).attr("title"),
-                emoji = "["+title+"]",
-                val = $("#text").val();
-            $("#text").val(val+emoji);
-            $("#text").focus();
-            $(".emoji-box").addClass("hidden");
-        })
     },
     showMsg : function(type,name,msg,img){
         var str = "",
